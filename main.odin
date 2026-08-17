@@ -1,6 +1,8 @@
 package main
 
 import "core:fmt"
+import "core:os"
+import "core:strings"
 
 import gl "vendor:OpenGL"
 
@@ -12,13 +14,48 @@ import "vendor:glfw"
 // Constant with explicit type for example
 GL_MAJOR_VERSION :: 4
 // Constant with type inference
-GL_MINOR_VERSION :: 6
+GL_MINOR_VERSION :: 5
 
 PROGRAMNAME :: "TinyTerribleGame"
+
+VERTEX_SHADER_PATH :: "vertex.glsl"
 
 // Our own boolean storing if the application is running
 // We use b32 for allignment and easy compatibility with the glfw.WindowShouldClose procedure
 running : b32 = true
+
+vertices := [9]f32{
+    -0.5, -0.5, 0.0,
+     0.5, -0.5, 0.0,
+     0.0,  0.5, 0.0
+}; 
+
+vbo : u32
+vertex_shader : u32
+
+get_vertex_shader_string :: proc() -> cstring {
+	data, err:= os.read_entire_file(VERTEX_SHADER_PATH, context.allocator)
+	if err != nil {
+		fmt.println("Error reading vertex shader file")
+		return nil
+	}
+	defer delete(data, context.allocator)
+
+	return strings.clone_to_cstring(string(data))
+}
+
+compileShader :: proc(shader: u32) {
+	success : i32
+	infoLog: [512]u8
+
+	gl.CompileShader(shader)
+
+	gl.GetShaderiv(shader, gl.COMPILE_STATUS, &success)
+	if success == 0 {
+		gl.GetShaderInfoLog(shader, 512, nil, raw_data(infoLog[:]))
+		fmt.println("Error shader compilation: ", cstring(raw_data(infoLog[:])))
+	}
+}
 
 main :: proc() {
     // https://www.glfw.org/docs/3.3/window_guide.html#window_hints
@@ -106,6 +143,17 @@ main :: proc() {
 
 init :: proc(){
 	// Own initialization code there
+	gl.GenBuffers(1, &vbo)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+
+	vertex_shader = gl.CreateShader(gl.VERTEX_SHADER)
+
+	vertexShaderSrc := get_vertex_shader_string()
+	sources : [^]cstring = &vertexShaderSrc
+	gl.ShaderSource(vertex_shader, 1, sources, nil)
+
+	compileShader(vertex_shader)
 }
 
 update :: proc(){
@@ -115,11 +163,12 @@ update :: proc(){
 draw :: proc(){
 	// Set the opengl clear color
 	// 0-1 rgba values
-	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+	// gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 	// Clear the screen with the set clearcolor
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	// Own drawing code here
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices), &vertices, gl.STATIC_DRAW)
 }
 
 exit :: proc(){
