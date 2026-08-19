@@ -19,6 +19,7 @@ GL_MINOR_VERSION :: 5
 PROGRAMNAME :: "TinyTerribleGame"
 
 VERTEX_SHADER_PATH :: "vertex.glsl"
+FRAGMENT_SHADER_PATH :: "fragment.glsl"
 
 // Our own boolean storing if the application is running
 // We use b32 for allignment and easy compatibility with the glfw.WindowShouldClose procedure
@@ -31,12 +32,14 @@ vertices := [9]f32{
 }; 
 
 vbo : u32
-vertex_shader : u32
+vertexShader : u32
+fragmentShader : u32
+shaderProgram : u32
 
-get_vertex_shader_string :: proc() -> cstring {
-	data, err:= os.read_entire_file(VERTEX_SHADER_PATH, context.allocator)
+getShaderSource :: proc(path: string) -> cstring {
+	data, err:= os.read_entire_file(path, context.allocator)
 	if err != nil {
-		fmt.println("Error reading vertex shader file")
+		fmt.println("Error reading shader file")
 		return nil
 	}
 	defer delete(data, context.allocator)
@@ -54,6 +57,19 @@ compileShader :: proc(shader: u32) {
 	if success == 0 {
 		gl.GetShaderInfoLog(shader, 512, nil, raw_data(infoLog[:]))
 		fmt.println("Error shader compilation: ", cstring(raw_data(infoLog[:])))
+	}
+}
+
+linkProgram :: proc(program: u32) {
+	success : i32
+	infoLog: [512]u8
+
+	gl.LinkProgram(program)
+
+	gl.GetProgramiv(program, gl.LINK_STATUS, &success)
+	if success == 0 {
+		gl.GetProgramInfoLog(program, 512, nil, raw_data(infoLog[:]))
+		fmt.println("Error linking program: ", cstring(raw_data(infoLog[:])))
 	}
 }
 
@@ -147,13 +163,36 @@ init :: proc(){
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 
-	vertex_shader = gl.CreateShader(gl.VERTEX_SHADER)
+	// Vertex Shader
+	vertexShader = gl.CreateShader(gl.VERTEX_SHADER)
 
-	vertexShaderSrc := get_vertex_shader_string()
-	sources : [^]cstring = &vertexShaderSrc
-	gl.ShaderSource(vertex_shader, 1, sources, nil)
+	vertexShaderSrc := getShaderSource(VERTEX_SHADER_PATH)
+	vertexSrc : [^]cstring = &vertexShaderSrc
+	gl.ShaderSource(vertexShader, 1, vertexSrc, nil)
 
-	compileShader(vertex_shader)
+	compileShader(vertexShader)
+
+	// Fragment Shader
+	fragmentShader = gl.CreateShader(gl.FRAGMENT_SHADER)
+
+	fragmentShaderSrc := getShaderSource(FRAGMENT_SHADER_PATH)
+	fragmentSrc : [^]cstring = &fragmentShaderSrc
+	gl.ShaderSource(fragmentShader, 1, fragmentSrc, nil)
+
+	compileShader(fragmentShader)
+
+	shaderProgram = gl.CreateProgram()
+	gl.AttachShader(shaderProgram, vertexShader)
+	gl.AttachShader(shaderProgram, fragmentShader)
+	linkProgram(shaderProgram)
+
+	gl.UseProgram(shaderProgram)
+
+	gl.DeleteShader(vertexShader)
+	gl.DeleteShader(fragmentShader)
+
+	// fmt.println("Renderer:", gl.GetString(gl.RENDERER))
+	// fmt.println("Version: ", gl.GetString(gl.VERSION))
 }
 
 update :: proc(){
@@ -163,7 +202,7 @@ update :: proc(){
 draw :: proc(){
 	// Set the opengl clear color
 	// 0-1 rgba values
-	// gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 	// Clear the screen with the set clearcolor
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
