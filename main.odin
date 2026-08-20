@@ -25,16 +25,25 @@ FRAGMENT_SHADER_PATH :: "fragment.glsl"
 // We use b32 for allignment and easy compatibility with the glfw.WindowShouldClose procedure
 running : b32 = true
 
-vertices := [9]f32{
-    -0.5, -0.5, 0.0,
-     0.5, -0.5, 0.0,
-     0.0,  0.5, 0.0
+vertices := []f32{
+	// first triangle
+    0.5, 0.5, 0.0, // top right
+    0.5, -0.5, 0.0, // bottom right
+    -0.5, -0.5, 0.0, // bottom left
+	-0.5, 0.5, 0.0	// top left
 }; 
+
+indices := []u32{
+	0, 1, 3,	// first triangle
+	1, 2, 3		// second triangle
+}
 
 vbo : u32
 vertexShader : u32
 fragmentShader : u32
 shaderProgram : u32
+vao : u32
+ebo : u32 // Element Buffer Object
 
 getShaderSource :: proc(path: string) -> cstring {
 	data, err:= os.read_entire_file(path, context.allocator)
@@ -158,11 +167,6 @@ main :: proc() {
 }
 
 init :: proc(){
-	// Own initialization code there
-	gl.GenBuffers(1, &vbo)
-
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-
 	// Vertex Shader
 	vertexShader = gl.CreateShader(gl.VERTEX_SHADER)
 
@@ -181,6 +185,7 @@ init :: proc(){
 
 	compileShader(fragmentShader)
 
+	// Shader program
 	shaderProgram = gl.CreateProgram()
 	gl.AttachShader(shaderProgram, vertexShader)
 	gl.AttachShader(shaderProgram, fragmentShader)
@@ -191,8 +196,26 @@ init :: proc(){
 	gl.DeleteShader(vertexShader)
 	gl.DeleteShader(fragmentShader)
 
-	// fmt.println("Renderer:", gl.GetString(gl.RENDERER))
-	// fmt.println("Version: ", gl.GetString(gl.VERSION))
+	gl.GenVertexArrays(1, &vao)
+	gl.GenBuffers(1, &vbo)
+	gl.GenBuffers(1, &ebo)
+
+	gl.BindVertexArray(vao)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(vertices), &vertices[0], gl.STATIC_DRAW)
+
+	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(indices), &indices[0], gl.STATIC_DRAW)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
+	gl.EnableVertexAttribArray(0)
+
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
+
+	// Polygon Mode (Wireframe)
+	// gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
 }
 
 update :: proc(){
@@ -207,7 +230,13 @@ draw :: proc(){
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	// Own drawing code here
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices), &vertices, gl.STATIC_DRAW)
+	
+	gl.UseProgram(shaderProgram)
+
+	gl.BindVertexArray(vao)
+	gl.DrawElements(gl.TRIANGLES, 6, gl.UNSIGNED_INT, nil)
+
+	// gl.BindVertexArray(0)
 }
 
 exit :: proc(){
