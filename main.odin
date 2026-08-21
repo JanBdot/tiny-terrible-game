@@ -17,8 +17,8 @@ FRAGMENT2_SHADER_PATH :: "fragment2.glsl"
 
 running: b32 = true
 
-vaos := [2]u32{}
-vbos := [2]u32{}
+vaos := [1]u32{}
+vbos := [1]u32{}
 ebo, shaderProgram, shaderProgram2: u32
 
 initGl :: proc() {
@@ -30,11 +30,7 @@ initGl :: proc() {
 	fragmentShader := useShader(FRAGMENT_SHADER_PATH, gl.FRAGMENT_SHADER)
 	compileShader(fragmentShader)
 
-	fragmentShader2 := useShader(FRAGMENT2_SHADER_PATH, gl.FRAGMENT_SHADER)
-	compileShader(fragmentShader2)
-
 	shaderProgram = useShaderProgram(vertexShader, fragmentShader)
-	shaderProgram2 = useShaderProgram(vertexShader, fragmentShader2)
 
 	gl.GenVertexArrays(2, raw_data(vaos[:]))
 	gl.GenBuffers(2, raw_data(vbos[:]))
@@ -47,22 +43,6 @@ initGl :: proc() {
 		gl.ARRAY_BUFFER,
 		getBufferSize(),
 		getTriangleVerticesPtr(),
-		gl.STATIC_DRAW,
-	)
-
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
-
-	gl.EnableVertexAttribArray(0)
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
-
-	// Second triangle
-	gl.BindVertexArray(vaos[1])
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbos[1])
-	gl.BufferData(
-		gl.ARRAY_BUFFER,
-		getBufferSize(),
-		&triangleVertices2[0],
 		gl.STATIC_DRAW,
 	)
 
@@ -85,9 +65,6 @@ draw :: proc() {
 	gl.BindVertexArray(vaos[0])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
-	gl.UseProgram(shaderProgram2)
-	gl.BindVertexArray(vaos[1])
-	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 	gl.BindVertexArray(0)
 }
 

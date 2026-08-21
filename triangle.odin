@@ -2,13 +2,6 @@ package main
 
 // odinfmt: disable
 triangleVertices := []f32{
-    0.5, 0.5, 0.0, // top center
-    1.0, -0.5, 0.0, // bottom right
-    0.0, -0.5, 0.0, // bottom left
-}
-// odinfmt: enable
-// odinfmt: disable
-triangleVertices2 := []f32{
     0.0, 0.5, 0.0, // top center
     0.5, -0.5, 0.0, // bottom right
     -0.5, -0.5, 0.0, // bottom left
