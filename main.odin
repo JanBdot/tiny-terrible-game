@@ -18,6 +18,10 @@ FRAGMENT_SHADER_PATH :: "fragment.glsl"
 
 running: b32 = true
 
+vaos := [2]u32{}
+vbos := [2]u32{}
+ebo, shaderProgram: u32
+
 initGl :: proc() {
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
@@ -27,16 +31,15 @@ initGl :: proc() {
 	fragmentShader := useShader(FRAGMENT_SHADER_PATH, gl.FRAGMENT_SHADER)
 	compileShader(fragmentShader)
 
-	shaderProgram := useShaderProgram(vertexShader, fragmentShader)
+	shaderProgram = useShaderProgram(vertexShader, fragmentShader)
 
-	vao, vbo, ebo: u32
-	gl.GenVertexArrays(1, &vao)
-	gl.GenBuffers(1, &vbo)
+	gl.GenVertexArrays(2, raw_data(vaos[:]))
+	gl.GenBuffers(2, raw_data(vbos[:]))
 	gl.GenBuffers(1, &ebo)
 
-	gl.BindVertexArray(vao)
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	fmt.println("%v", getTriangleVertices())
+	// First triangle
+	gl.BindVertexArray(vaos[0])
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbos[0])
 	gl.BufferData(
 		gl.ARRAY_BUFFER,
 		getBufferSize(),
@@ -44,7 +47,23 @@ initGl :: proc() {
 		gl.STATIC_DRAW,
 	)
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, i32(getBufferSize()), 0)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
+
+	gl.EnableVertexAttribArray(0)
+	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	gl.BindVertexArray(0)
+
+	// Second triangle
+	gl.BindVertexArray(vaos[1])
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbos[1])
+	gl.BufferData(
+		gl.ARRAY_BUFFER,
+		getBufferSize(),
+		&triangleVertices2[0],
+		gl.STATIC_DRAW,
+	)
+
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
 
 	gl.EnableVertexAttribArray(0)
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
@@ -60,8 +79,11 @@ draw :: proc() {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
 	gl.UseProgram(shaderProgram)
-	gl.BindVertexArray(vao)
+	gl.BindVertexArray(vaos[0])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
+	gl.BindVertexArray(vaos[1])
+	gl.DrawArrays(gl.TRIANGLES, 0, 3)
+	gl.BindVertexArray(0)
 }
 
 exit :: proc() {

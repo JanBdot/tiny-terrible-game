@@ -32,19 +32,19 @@ import "vendor:glfw"
 //     0.5, -0.5, 0.0, // bottom right
 //     -0.5, -0.5, 0.0, // bottom left
 // 	-0.5, 0.5, 0.0	// top left
-// }; 
+// };
 
-indices := []u32{
-	0, 1, 3,	// first triangle
-	1, 2, 3		// second triangle
-}
+// indices := []u32{
+// 	0, 1, 3,	// first triangle
+// 	1, 2, 3		// second triangle
+// }
 
-vbo : u32
-vertexShader : u32
-fragmentShader : u32
-shaderProgram : u32
-vao : u32
-ebo : u32 // Element Buffer Object
+// vbo : u32
+// vertexShader : u32
+// fragmentShader : u32
+// shaderProgram : u32
+// vao : u32
+// ebo : u32 // Element Buffer Object
 
 // getShaderSource :: proc(path: string) -> cstring {
 // 	data, err:= os.read_entire_file(path, context.allocator)
@@ -87,7 +87,7 @@ ebo : u32 // Element Buffer Object
 //     // https://www.glfw.org/docs/3.3/window_guide.html#window_hints
 // 	// https://www.glfw.org/docs/3.3/group__window.html#ga7d9c8c62384b1e2821c4dc48952d2033
 // 	glfw.WindowHint(glfw.RESIZABLE, 1)
-// 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR,GL_MAJOR_VERSION) 
+// 	glfw.WindowHint(glfw.CONTEXT_VERSION_MAJOR,GL_MAJOR_VERSION)
 // 	glfw.WindowHint(glfw.CONTEXT_VERSION_MINOR,GL_MINOR_VERSION)
 // 	glfw.WindowHint(glfw.OPENGL_PROFILE,glfw.OPENGL_CORE_PROFILE)
 
@@ -124,7 +124,7 @@ ebo : u32 // Element Buffer Object
 
 //     // https://www.glfw.org/docs/3.3/group__context.html#ga1c04dc242268f827290fe40aa1c91157
 // 	glfw.MakeContextCurrent(window)
-	
+
 // 	// Enable vsync
 // 	// https://www.glfw.org/docs/3.3/group__context.html#ga6d4e0cdf151b5e579bd67f13202994ed
 // 	glfw.SwapInterval(1)
@@ -144,17 +144,17 @@ ebo : u32 // Element Buffer Object
 
 // 	// casting the c.int to int
 // 	// This is needed because the GL_MAJOR_VERSION has an explicit type of c.int
-// 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address) 
-	
+// 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
+
 // 	init()
-	
+
 // 	// There is only one kind of loop in Odin called for
 // 	// https://odin-lang.org/docs/overview/#for-statement
 // 	for (!glfw.WindowShouldClose(window) && running) {
 // 		// Process waiting events in queue
 // 		// https://www.glfw.org/docs/3.3/group__window.html#ga37bd57223967b4211d60ca1a0bf3c832
 // 		glfw.PollEvents()
-		
+
 // 		update()
 // 		draw()
 
@@ -167,7 +167,7 @@ ebo : u32 // Element Buffer Object
 // 	exit()
 // }
 
-init :: proc(){
+init :: proc() {
 	// Vertex Shader
 	// vertexShader = gl.CreateShader(gl.VERTEX_SHADER)
 
@@ -206,14 +206,19 @@ init :: proc(){
 	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 	// gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(vertices), &vertices[0], gl.STATIC_DRAW)
 
-	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(indices), &indices[0], gl.STATIC_DRAW)
+	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
+	// gl.BufferData(
+	// 	gl.ELEMENT_ARRAY_BUFFER,
+	// 	len(indices) * size_of(indices),
+	// 	&indices[0],
+	// 	gl.STATIC_DRAW,
+	// )
 
-	gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
-	gl.EnableVertexAttribArray(0)
+	// gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), 0)
+	// gl.EnableVertexAttribArray(0)
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
-	gl.BindVertexArray(0)
+	// gl.BindBuffer(gl.ARRAY_BUFFER, 0)
+	// gl.BindVertexArray(0)
 
 	// Polygon Mode (Wireframe)
 	// gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
@@ -228,7 +233,7 @@ init :: proc(){
 // 	// 0-1 rgba values
 
 // 	// Own drawing code here
-	
+
 // 	gl.UseProgram(shaderProgram)
 
 // 	gl.BindVertexArray(vao)
@@ -242,7 +247,10 @@ init :: proc(){
 // }
 
 // Called when glfw keystate changes
-key_callback :: proc "c" (window: glfw.WindowHandle, key, scancode, action, mods: i32) {
+key_callback :: proc "c" (
+	window: glfw.WindowHandle,
+	key, scancode, action, mods: i32,
+) {
 	// Exit program on escape pressed
 	if key == glfw.KEY_ESCAPE {
 		running = false
