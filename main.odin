@@ -1,7 +1,5 @@
 package main
 
-import "core:fmt"
-
 import gl "vendor:OpenGL"
 
 import "vendor:glfw"
@@ -15,12 +13,13 @@ WINDOW_HEIGHT :: 500
 PROGRAMNAME :: "TinyTerribleGame"
 VERTEX_SHADER_PATH :: "vertex.glsl"
 FRAGMENT_SHADER_PATH :: "fragment.glsl"
+FRAGMENT2_SHADER_PATH :: "fragment2.glsl"
 
 running: b32 = true
 
 vaos := [2]u32{}
 vbos := [2]u32{}
-ebo, shaderProgram: u32
+ebo, shaderProgram, shaderProgram2: u32
 
 initGl :: proc() {
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
@@ -31,7 +30,11 @@ initGl :: proc() {
 	fragmentShader := useShader(FRAGMENT_SHADER_PATH, gl.FRAGMENT_SHADER)
 	compileShader(fragmentShader)
 
+	fragmentShader2 := useShader(FRAGMENT2_SHADER_PATH, gl.FRAGMENT_SHADER)
+	compileShader(fragmentShader2)
+
 	shaderProgram = useShaderProgram(vertexShader, fragmentShader)
+	shaderProgram2 = useShaderProgram(vertexShader, fragmentShader2)
 
 	gl.GenVertexArrays(2, raw_data(vaos[:]))
 	gl.GenBuffers(2, raw_data(vbos[:]))
@@ -81,6 +84,8 @@ draw :: proc() {
 	gl.UseProgram(shaderProgram)
 	gl.BindVertexArray(vaos[0])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
+
+	gl.UseProgram(shaderProgram2)
 	gl.BindVertexArray(vaos[1])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 	gl.BindVertexArray(0)
