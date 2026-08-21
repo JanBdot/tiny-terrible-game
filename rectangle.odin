@@ -26,13 +26,13 @@ import "vendor:glfw"
 // // We use b32 for allignment and easy compatibility with the glfw.WindowShouldClose procedure
 // running : b32 = true
 
-vertices := []f32{
-	// first triangle
-    0.5, 0.5, 0.0, // top right
-    0.5, -0.5, 0.0, // bottom right
-    -0.5, -0.5, 0.0, // bottom left
-	-0.5, 0.5, 0.0	// top left
-}; 
+// vertices := []f32{
+// 	// first triangle
+//     0.5, 0.5, 0.0, // top right
+//     0.5, -0.5, 0.0, // bottom right
+//     -0.5, -0.5, 0.0, // bottom left
+// 	-0.5, 0.5, 0.0	// top left
+// }; 
 
 indices := []u32{
 	0, 1, 3,	// first triangle
@@ -187,24 +187,24 @@ init :: proc(){
 	// compileShader(fragmentShader)
 
 	// Shader program
-	shaderProgram = gl.CreateProgram()
-	gl.AttachShader(shaderProgram, vertexShader)
-	gl.AttachShader(shaderProgram, fragmentShader)
-	linkProgram(shaderProgram)
+	// shaderProgram = gl.CreateProgram()
+	// gl.AttachShader(shaderProgram, vertexShader)
+	// gl.AttachShader(shaderProgram, fragmentShader)
+	// linkProgram(shaderProgram)
 
-	gl.UseProgram(shaderProgram)
+	// gl.UseProgram(shaderProgram)
 
-	gl.DeleteShader(vertexShader)
-	gl.DeleteShader(fragmentShader)
+	// gl.DeleteShader(vertexShader)
+	// gl.DeleteShader(fragmentShader)
 
-	gl.GenVertexArrays(1, &vao)
-	gl.GenBuffers(1, &vbo)
-	gl.GenBuffers(1, &ebo)
+	// gl.GenVertexArrays(1, &vao)
+	// gl.GenBuffers(1, &vbo)
+	// gl.GenBuffers(1, &ebo)
 
-	gl.BindVertexArray(vao)
+	// gl.BindVertexArray(vao)
 
-	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(vertices), &vertices[0], gl.STATIC_DRAW)
+	// gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	// gl.BufferData(gl.ARRAY_BUFFER, len(vertices) * size_of(vertices), &vertices[0], gl.STATIC_DRAW)
 
 	gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
 	gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, len(indices) * size_of(indices), &indices[0], gl.STATIC_DRAW)
