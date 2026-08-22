@@ -1,5 +1,6 @@
 package main
 
+import "core:math"
 import gl "vendor:OpenGL"
 
 import "vendor:glfw"
@@ -13,7 +14,6 @@ WINDOW_HEIGHT :: 500
 PROGRAMNAME :: "TinyTerribleGame"
 VERTEX_SHADER_PATH :: "vertex.glsl"
 FRAGMENT_SHADER_PATH :: "fragment.glsl"
-FRAGMENT2_SHADER_PATH :: "fragment2.glsl"
 
 running: b32 = true
 
@@ -61,7 +61,12 @@ draw :: proc() {
 	gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
+	timeValue := glfw.GetTime()
+	greenValue := f32((math.sin(timeValue) / 2) + 0.5)
+	vertexColorLocation := gl.GetUniformLocation(shaderProgram, "ourColor")
+
 	gl.UseProgram(shaderProgram)
+	gl.Uniform4f(vertexColorLocation, 0.0, greenValue, 0.0, 1.0)
 	gl.BindVertexArray(vaos[0])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
 
