@@ -19,6 +19,7 @@ create :: proc() -> (shaderProgram: u32) {
 	if vertexShader, ok = createShader(VERTEX_SHADER_PATH, gl.VERTEX_SHADER);
 	   !ok {
 		fmt.println("Failed to load vertex shader")
+		return
 	}
 
 	if fragmentShader, ok = createShader(
@@ -26,6 +27,7 @@ create :: proc() -> (shaderProgram: u32) {
 		gl.FRAGMENT_SHADER,
 	); !ok {
 		fmt.println("Failed to load fragment shader")
+		return
 	}
 
 	shaderProgram = createShaderProgram(vertexShader, fragmentShader)
@@ -36,6 +38,10 @@ createShader :: proc(path: string, type: u32) -> (u32, bool) {
 	shader: u32
 	shader = gl.CreateShader(type)
 	shaderSrc := getShaderSource(path)
+	if shaderSrc == nil {
+		fmt.println("Error getting shader source")
+		return 0, false
+	}
 	vertexPtr: [^]cstring = &shaderSrc
 	gl.ShaderSource(shader, 1, vertexPtr, nil)
 
@@ -77,21 +83,30 @@ compileShader :: proc(shader: u32) -> bool {
 
 setBoolUniform :: proc(program: u32, name: string, value: bool) {
 	gl.Uniform1i(
-		gl.GetUniformLocation(program, strings.clone_to_cstring(name)),
+		gl.GetUniformLocation(
+			program,
+			strings.clone_to_cstring(name, context.temp_allocator),
+		),
 		i32(value),
 	)
 }
 
 setIntUniform :: proc(program: u32, name: string, value: int) {
 	gl.Uniform1i(
-		gl.GetUniformLocation(program, strings.clone_to_cstring(name)),
+		gl.GetUniformLocation(
+			program,
+			strings.clone_to_cstring(name, context.temp_allocator),
+		),
 		i32(value),
 	)
 }
 
 setFloatUniform :: proc(program: u32, name: string, value: f32) {
 	gl.Uniform1f(
-		gl.GetUniformLocation(program, strings.clone_to_cstring(name)),
+		gl.GetUniformLocation(
+			program,
+			strings.clone_to_cstring(name, context.temp_allocator),
+		),
 		value,
 	)
 }

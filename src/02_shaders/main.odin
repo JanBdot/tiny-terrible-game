@@ -106,6 +106,7 @@ main :: proc() {
 		draw()
 
 		glfw.SwapBuffers(window)
+		free_all(context.temp_allocator)
 	}
 
 	exit()
