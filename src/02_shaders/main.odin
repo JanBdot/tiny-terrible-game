@@ -1,6 +1,5 @@
 package main
 
-import "core:fmt"
 import "core:math"
 import gl "vendor:OpenGL"
 
@@ -15,35 +14,17 @@ WINDOW_WIDTH :: 500
 WINDOW_HEIGHT :: 500
 
 PROGRAMNAME :: "TinyTerribleGame"
-VERTEX_SHADER_PATH :: "vertex.glsl"
-FRAGMENT_SHADER_PATH :: "fragment.glsl"
 
 running: b32 = true
 
 vaos := [1]u32{}
 vbos := [1]u32{}
-ebo, shaderProgram, shaderProgram2: u32
+ebo, shaderProgram: u32
 
 initGl :: proc() {
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
-	ok := false
-	vertexShader, fragmentShader: u32
-	if vertexShader, ok = shader.useShader(
-		VERTEX_SHADER_PATH,
-		gl.VERTEX_SHADER,
-	); !ok {
-		fmt.println("Failed to load vertex shader")
-	}
-
-	if fragmentShader, ok = shader.useShader(
-		FRAGMENT_SHADER_PATH,
-		gl.FRAGMENT_SHADER,
-	); !ok {
-		fmt.println("Failed to load fragment shader")
-	}
-
-	shaderProgram = shader.useShaderProgram(vertexShader, fragmentShader)
+	shaderProgram = shader.create()
 
 	gl.GenVertexArrays(2, raw_data(vaos[:]))
 	gl.GenBuffers(2, raw_data(vbos[:]))
@@ -90,7 +71,8 @@ draw :: proc() {
 	greenValue := f32((math.sin(timeValue) / 2) + 0.5)
 	vertexColorLocation := gl.GetUniformLocation(shaderProgram, "ourColor")
 
-	gl.UseProgram(shaderProgram)
+	shader.use(shaderProgram)
+	shader.setFloatUniform(shaderProgram, "ourFloatValue", 0.5)
 	gl.Uniform4f(vertexColorLocation, 0.0, greenValue, 0.0, 1.0)
 	gl.BindVertexArray(vaos[0])
 	gl.DrawArrays(gl.TRIANGLES, 0, 3)
