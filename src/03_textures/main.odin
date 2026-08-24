@@ -21,6 +21,14 @@ vaos := [1]u32{}
 vbos := [1]u32{}
 ebo, shaderProgram: u32
 
+// odinfmt: disable
+textureCoords := [6]f32 {
+	0.0, 0.0,	// lower-left corner
+	1.0, 0.0,	// lower-right corner
+	0.5, 1.0, 	// top-center corner
+}
+// odinfmt: enable
+
 initGl :: proc() {
 	gl.load_up_to(GL_MAJOR_VERSION, GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
@@ -57,16 +65,6 @@ initGl :: proc() {
 
 	gl.BindBuffer(gl.ARRAY_BUFFER, 0)
 	gl.BindVertexArray(0)
-
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
-
-	gl.TexParameteri(
-		gl.TEXTURE_2D,
-		gl.TEXTURE_MIN_FILTER,
-		gl.LINEAR_MIPMAP_LINEAR,
-	)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST)
 }
 
 update :: proc() {
